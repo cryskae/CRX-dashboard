@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRX Project Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero" id="overview">
+        <nav class="top-nav">
+          <div class="brand-lockup">
+            <span class="brand-kicker">CRX</span>
+            <span class="brand-name">Project Dashboard</span>
+          </div>
+          <div class="nav-links">
+            <a href="#overview">Overview</a>
+            <a href="#scope">Scope</a>
+            <a href="#schedule">Schedule</a>
+            <a href="#photos">Photos</a>
+            <a href="#progress">Progress</a>
+            <a href="#notes">Field Notes</a>
+            <a href="#admin">Admin</a>
+          </div>
+        </nav>
+
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Single Project Dashboard</p>
+            <h1 id="project-headline">Loading dashboard...</h1>
+            <p class="hero-description" id="project-description"></p>
+            <div class="hero-meta">
+              <span id="project-location"></span>
+              <span id="project-code"></span>
+            </div>
+          </div>
+          <aside class="hero-progress">
+            <p class="progress-label">Overall Project Progress</p>
+            <div class="ring-wrap">
+              <div class="progress-ring">
+                <svg viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="52"></circle>
+                  <circle cx="60" cy="60" r="52" id="hero-progress-ring"></circle>
+                </svg>
+                <div class="ring-value" id="hero-progress-value">0%</div>
+              </div>
+            </div>
+            <p class="progress-caption">
+              Live data from the CRX field admin panel and photo log.
+            </p>
+          </aside>
+        </div>
+
+        <section class="overview-cards" id="overview-cards"></section>
+      </header>
+
+      <main class="content-grid">
+        <section class="panel panel-wide" aria-labelledby="team-heading">
+          <div class="panel-heading">
+            <p class="section-label">Project Teams</p>
+            <h2 id="team-heading">Owner, design, and construction partners</h2>
+          </div>
+          <div class="partner-grid" id="partner-grid"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="dates-heading">
+          <div class="panel-heading">
+            <p class="section-label">Key Dates</p>
+            <h2 id="dates-heading">Contract and turnover checkpoints</h2>
+          </div>
+          <ul class="detail-list" id="key-dates-list"></ul>
+        </section>
+
+        <section class="panel" aria-labelledby="staging-heading">
+          <div class="panel-heading">
+            <p class="section-label">Staging & Access</p>
+            <h2 id="staging-heading">How the site stays operational</h2>
+          </div>
+          <ul class="detail-list" id="staging-list"></ul>
+        </section>
+
+        <section class="panel panel-wide" id="scope" aria-labelledby="scope-heading">
+          <div class="panel-heading">
+            <p class="section-label">Scope of Work</p>
+            <h2 id="scope-heading">Area breakdown</h2>
+          </div>
+          <div class="scope-grid" id="scope-grid"></div>
+        </section>
+
+        <section class="panel panel-wide" id="schedule" aria-labelledby="schedule-heading">
+          <div class="panel-heading">
+            <p class="section-label">Project Schedule</p>
+            <h2 id="schedule-heading">Sequencing and timeline</h2>
+          </div>
+          <div class="schedule-summary" id="schedule-summary"></div>
+          <p class="schedule-note" id="schedule-note"></p>
+          <div class="timeline" id="timeline"></div>
+        </section>
+
+        <section class="panel panel-wide" id="photos" aria-labelledby="photos-heading">
+          <div class="panel-heading">
+            <p class="section-label">Photo Gallery</p>
+            <h2 id="photos-heading">Before, during, and after documentation</h2>
+          </div>
+          <div class="gallery-filters">
+            <div class="filter-group" id="phase-filters"></div>
+            <div class="filter-group" id="area-filters"></div>
+          </div>
+          <div class="gallery-grid" id="gallery-grid"></div>
+          <div class="empty-state hidden" id="gallery-empty">
+            No photos match the selected filters.
+          </div>
+        </section>
+
+        <section class="panel" id="progress" aria-labelledby="progress-heading">
+          <div class="panel-heading">
+            <p class="section-label">Project Progress</p>
+            <h2 id="progress-heading">Progress bars by area</h2>
+          </div>
+          <div class="progress-list" id="progress-list"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="updates-heading">
+          <div class="panel-heading">
+            <p class="section-label">Latest Updates</p>
+            <h2 id="updates-heading">Workstream activity</h2>
+          </div>
+          <div class="stack-list" id="updates-list"></div>
+        </section>
+
+        <section class="panel panel-wide" id="notes" aria-labelledby="notes-heading">
+          <div class="panel-heading">
+            <p class="section-label">Field Notes</p>
+            <h2 id="notes-heading">Daily logs, issues, and observations</h2>
+          </div>
+          <div class="notes-grid" id="notes-grid"></div>
+        </section>
+
+        <section class="panel panel-wide admin-panel" id="admin" aria-labelledby="admin-heading">
+          <div class="panel-heading">
+            <p class="section-label">Admin</p>
+            <h2 id="admin-heading">Updates, photos, notes, and progress controls</h2>
+          </div>
+
+          <div class="auth-card" id="auth-card">
+            <form id="login-form" class="admin-form compact-form">
+              <label>
+                Admin Password
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Enter admin password"
+                  autocomplete="current-password"
+                  required
+                />
+              </label>
+              <button type="submit">Sign In</button>
+            </form>
+            <button id="logout-button" class="secondary-button hidden" type="button">
+              Sign Out
+            </button>
+            <p class="status-message" id="auth-message"></p>
+          </div>
+
+          <div id="admin-workspace" class="admin-workspace hidden">
+            <div class="admin-grid">
+              <form id="update-form" class="admin-form" enctype="multipart/form-data">
+                <h3>Post Progress Update</h3>
+                <label>
+                  Update Title
+                  <input type="text" name="title" required />
+                </label>
+                <label>
+                  Area
+                  <select name="area" id="update-area-select" required></select>
+                </label>
+                <label>
+                  Phase for Attached Photos
+                  <select name="phase" id="update-phase-select"></select>
+                </label>
+                <label>
+                  Description
+                  <textarea name="description" rows="5" required></textarea>
+                </label>
+                <label>
+                  Photos
+                  <input type="file" name="photos" multiple accept="image/*" />
+                </label>
+                <button type="submit">Publish Update</button>
+              </form>
+
+              <form id="photo-form" class="admin-form" enctype="multipart/form-data">
+                <h3>Upload Photos</h3>
+                <label>
+                  Phase
+                  <select name="phase" id="photo-phase-select" required></select>
+                </label>
+                <label>
+                  Area
+                  <select name="area" id="photo-area-select" required></select>
+                </label>
+                <label>
+                  Caption
+                  <input type="text" name="caption" placeholder="Optional caption" />
+                </label>
+                <label>
+                  Photos
+                  <input type="file" name="photos" multiple accept="image/*" required />
+                </label>
+                <button type="submit">Upload Photos</button>
+              </form>
+
+              <form id="progress-form" class="admin-form">
+                <h3>Update Progress</h3>
+                <label>
+                  Overall Project (%)
+                  <input type="number" min="0" max="100" name="overall" required />
+                </label>
+                <label>
+                  North Deck (%)
+                  <input type="number" min="0" max="100" name="northDeck" required />
+                </label>
+                <label>
+                  South Courtyard (%)
+                  <input type="number" min="0" max="100" name="southCourtyard" required />
+                </label>
+                <label>
+                  Lobby (%)
+                  <input type="number" min="0" max="100" name="lobby" required />
+                </label>
+                <label>
+                  Pool Terrace (%)
+                  <input type="number" min="0" max="100" name="poolTerrace" required />
+                </label>
+                <button type="submit">Save Progress</button>
+              </form>
+
+              <form id="note-form" class="admin-form">
+                <h3>Add or Edit Field Note</h3>
+                <input type="hidden" name="id" />
+                <label>
+                  Note Title
+                  <input type="text" name="title" required />
+                </label>
+                <label>
+                  Category
+                  <select name="category" id="note-category-select" required></select>
+                </label>
+                <label>
+                  Note
+                  <textarea name="note" rows="5" required></textarea>
+                </label>
+                <div class="button-row">
+                  <button type="submit">Save Note</button>
+                  <button type="button" id="note-reset-button" class="secondary-button">
+                    Clear
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div class="admin-manage">
+              <div class="manage-panel">
+                <h3>Manage Field Notes</h3>
+                <div class="manage-list" id="admin-notes-list"></div>
+              </div>
+              <div class="manage-panel">
+                <h3>Manage Updates & Photos</h3>
+                <div class="manage-list" id="admin-updates-list"></div>
+                <div class="manage-list" id="admin-photos-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <p class="status-message" id="admin-message"></p>
+        </section>
+      </main>
+    </div>
+
+    <template id="filter-button-template">
+      <button class="filter-chip" type="button"></button>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
