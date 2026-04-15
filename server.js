@@ -16,6 +16,7 @@ const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "storage");
 const UPLOAD_DIR = path.join(DATA_DIR, "uploads");
 const DB_FILE = path.join(DATA_DIR, "data.json");
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "crx-admin";
+const MANAGER_PASSWORD = process.env.MANAGER_PASSWORD || "crx-manager";
 const SESSION_SECRET =
   process.env.SESSION_SECRET || "crx-dashboard-session-secret";
 
@@ -421,7 +422,15 @@ app.use("/uploads", express.static(UPLOAD_DIR));
 app.use(express.static(path.join(__dirname, "public")));
 
 function requireAdmin(req, res, next) {
-  if (!req.session.isAdmin) {
+  if (req.session.role !== "admin") {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  next();
+}
+
+function requireManager(req, res, next) {
+  if (!req.session.role || !["admin", "manager"].includes(req.session.role)) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
@@ -528,6 +537,7 @@ app.get("/api/dashboard", (req, res) => {
   res.json({
     ...db,
     adminAuthenticated: Boolean(req.session.isAdmin),
+    currentUserRole: req.session.role || null,
   });
 });
 
@@ -537,14 +547,23 @@ app.get("/api/health", (req, res) => {
 
 app.post("/api/admin/login", (req, res) => {
   const password = String(req.body.password || "");
+  const role = String(req.body.role || "").toLowerCase();
 
-  if (password !== ADMIN_PASSWORD) {
-    res.status(401).json({ error: "Incorrect password." });
+  if (role === "admin" && password === ADMIN_PASSWORD) {
+    req.session.isAdmin = true;
+    req.session.role = "admin";
+    res.json({ success: true, role: "admin" });
     return;
   }
 
-  req.session.isAdmin = true;
-  res.json({ success: true });
+  if (role === "manager" && password === MANAGER_PASSWORD) {
+    req.session.isAdmin = false;
+    req.session.role = "manager";
+    res.json({ success: true, role: "manager" });
+    return;
+  }
+
+  res.status(401).json({ error: "Incorrect login or password." });
 });
 
 app.post("/api/admin/logout", (req, res) => {
@@ -555,7 +574,7 @@ app.post("/api/admin/logout", (req, res) => {
 
 app.post(
   "/api/admin/updates",
-  requireAdmin,
+  requireManager,
   upload.array("photos", 5),
   (req, res) => {
     const db = readDb();
@@ -586,7 +605,7 @@ app.post(
   }
 );
 
-app.delete("/api/admin/updates/:id", requireAdmin, (req, res) => {
+app.delete("/api/admin/updates/:id", requireManager, (req, res) => {
   const db = readDb();
   const update = db.updates.find((entry) => entry.id === req.params.id);
 
@@ -607,7 +626,7 @@ app.delete("/api/admin/updates/:id", requireAdmin, (req, res) => {
 
 app.post(
   "/api/admin/photos",
-  requireAdmin,
+  requireManager,
   upload.array("photos", 5),
   (req, res) => {
     const { phase, area, caption } = req.body;
@@ -630,7 +649,7 @@ app.post(
   }
 );
 
-app.delete("/api/admin/photos/:id", requireAdmin, (req, res) => {
+app.delete("/api/admin/photos/:id", requireManager, (req, res) => {
   const db = readDb();
   const photo = db.photos.find((entry) => entry.id === req.params.id);
 
@@ -649,7 +668,7 @@ app.delete("/api/admin/photos/:id", requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-app.post("/api/admin/progress", requireAdmin, (req, res) => {
+app.post("/api/admin/progress", requireManager, (req, res) => {
   const db = readDb();
   const currentAreas = Object.keys(db.progress.areas || {});
   const nextAreas = Object.fromEntries(
@@ -732,7 +751,7 @@ app.post("/api/admin/project-template", requireAdmin, (req, res) => {
   }
 });
 
-app.post("/api/admin/notes", requireAdmin, (req, res) => {
+app.post("/api/admin/notes", requireManager, (req, res) => {
   const { title, category, note } = req.body;
 
   if (!title || !category || !note) {
@@ -752,7 +771,7 @@ app.post("/api/admin/notes", requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-app.put("/api/admin/notes/:id", requireAdmin, (req, res) => {
+app.put("/api/admin/notes/:id", requireManager, (req, res) => {
   const { title, category, note } = req.body;
   const db = readDb();
   const current = db.fieldNotes.find((entry) => entry.id === req.params.id);
@@ -769,7 +788,7 @@ app.put("/api/admin/notes/:id", requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-app.delete("/api/admin/notes/:id", requireAdmin, (req, res) => {
+app.delete("/api/admin/notes/:id", requireManager, (req, res) => {
   const db = readDb();
   db.fieldNotes = db.fieldNotes.filter((entry) => entry.id !== req.params.id);
   writeDb(db);

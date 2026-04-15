@@ -159,11 +159,18 @@
           <div class="auth-card" id="auth-card">
             <form id="login-form" class="admin-form compact-form">
               <label>
-                Admin Password
+                Login Role
+                <select name="role" required>
+                  <option value="manager">Project Manager</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </label>
+              <label>
+                Password
                 <input
                   type="password"
                   name="password"
-                  placeholder="Enter admin password"
+                  placeholder="Enter password"
                   autocomplete="current-password"
                   required
                 />
@@ -173,12 +180,13 @@
             <button id="logout-button" class="secondary-button hidden" type="button">
               Sign Out
             </button>
+            <p class="status-message" id="role-message"></p>
             <p class="status-message" id="auth-message"></p>
           </div>
 
           <div id="admin-workspace" class="admin-workspace hidden">
             <div class="admin-grid">
-              <form id="template-form" class="admin-form template-form">
+              <form id="template-form" class="admin-form template-form hidden">
                 <h3>Project Template Editor</h3>
                 <p class="form-helper">
                   Update the reusable project setup here. Lists are one item per line.

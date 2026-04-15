@@ -3,6 +3,7 @@ const state = {
   photoPhaseFilter: "All",
   photoAreaFilter: "All",
   editingNoteId: null,
+  currentUserRole: null,
 };
 
 const elements = {
@@ -26,6 +27,7 @@ const elements = {
   updatesList: document.querySelector("#updates-list"),
   notesGrid: document.querySelector("#notes-grid"),
   authMessage: document.querySelector("#auth-message"),
+  roleMessage: document.querySelector("#role-message"),
   authCard: document.querySelector("#auth-card"),
   adminWorkspace: document.querySelector("#admin-workspace"),
   adminMessage: document.querySelector("#admin-message"),
@@ -358,6 +360,18 @@ function setAdminVisible(visible) {
   elements.loginForm.classList.toggle("hidden", visible);
 }
 
+function updateRoleVisibility() {
+  const isAdmin = state.currentUserRole === "admin";
+  const isManager = state.currentUserRole === "manager";
+  const isAuthenticated = isAdmin || isManager;
+
+  setAdminVisible(isAuthenticated);
+  elements.templateForm.classList.toggle("hidden", !isAdmin);
+  elements.roleMessage.textContent = isAuthenticated
+    ? `Signed in as ${isAdmin ? "Admin" : "Project Manager"}.`
+    : "Admin can edit the full project template. Project Manager can update notes, photos, progress, and field updates.";
+}
+
 function populateSelect(select, values) {
   select.innerHTML = values
     .map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`)
@@ -490,6 +504,7 @@ function bindManageActions() {
 
 function renderDashboard() {
   const { project, scopeAreas, schedule, progress, options } = state.dashboard;
+  state.currentUserRole = state.dashboard.currentUserRole;
 
   elements.projectHeadline.textContent = project.headline;
   elements.projectDescription.textContent = project.description;
@@ -534,7 +549,7 @@ function renderDashboard() {
   hydrateAdminForms();
   renderAdminLists();
   bindManageActions();
-  setAdminVisible(state.dashboard.adminAuthenticated);
+  updateRoleVisibility();
 }
 
 async function refreshDashboard(message = "") {
@@ -570,12 +585,8 @@ elements.loginForm.addEventListener("submit", async (event) => {
   elements.authMessage.textContent = "";
 
   try {
-    await handleFormSubmit(
-      elements.loginForm,
-      "/api/admin/login",
-      "Admin session active."
-    );
-    elements.authMessage.textContent = "Admin session active.";
+    await handleFormSubmit(elements.loginForm, "/api/admin/login", "Session active.");
+    elements.authMessage.textContent = "Session active.";
   } catch (error) {
     elements.authMessage.textContent = error.message;
   }
