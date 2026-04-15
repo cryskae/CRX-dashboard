@@ -228,6 +228,12 @@ const seedData = {
       "Pool Terrace": 10,
     },
   },
+  options: {
+    photoPhases: PHOTO_PHASES,
+    projectAreas: PROJECT_AREAS,
+    noteCategories: NOTE_CATEGORIES,
+    updateAreas: UPDATE_AREAS,
+  },
   photos: [
     {
       id: "seed-photo-1",
@@ -331,6 +337,10 @@ function readDb() {
         ...((parsed.progress && parsed.progress.areas) || {}),
       },
     },
+    options: {
+      ...seedData.options,
+      ...(parsed.options || {}),
+    },
     scopeAreas: parsed.scopeAreas || seedData.scopeAreas,
     photos: parsed.photos || seedData.photos,
     updates: parsed.updates || seedData.updates,
@@ -426,16 +436,97 @@ function sanitizeProgressValue(value) {
   return Math.min(100, Math.max(0, Math.round(numeric)));
 }
 
+function splitLines(value) {
+  return String(value || "")
+    .split("\n")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function parseJsonField(value, fieldName) {
+  try {
+    return JSON.parse(String(value || "[]"));
+  } catch (error) {
+    throw new Error(`Invalid JSON provided for ${fieldName}.`);
+  }
+}
+
+function ensureArrayOfObjects(value, fieldName) {
+  if (!Array.isArray(value) || value.some((item) => !item || typeof item !== "object")) {
+    throw new Error(`${fieldName} must be a JSON array of objects.`);
+  }
+  return value;
+}
+
+function ensureArrayOfStrings(value, fieldName) {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+    throw new Error(`${fieldName} must be a list of strings.`);
+  }
+  return value;
+}
+
+function normalizeScopeAreas(scopeAreas) {
+  return ensureArrayOfObjects(scopeAreas, "scope areas").map((area, index) => ({
+    id:
+      String(area.id || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || `scope-area-${index + 1}`,
+    name: String(area.name || `Area ${index + 1}`),
+    subtitle: String(area.subtitle || ""),
+    duration: String(area.duration || ""),
+    sequence: String(area.sequence || ""),
+    tasks: ensureArrayOfStrings(area.tasks || [], `scope area ${index + 1} tasks`),
+  }));
+}
+
+function normalizeSummaryCards(summaryCards) {
+  return ensureArrayOfObjects(summaryCards, "schedule summary cards").map((card) => ({
+    label: String(card.label || ""),
+    value: String(card.value || ""),
+  }));
+}
+
+function normalizeTimeline(timeline) {
+  return ensureArrayOfObjects(timeline, "schedule timeline").map((item, index) => ({
+    title: String(item.title || `Step ${index + 1}`),
+    days: String(item.days || ""),
+    items: ensureArrayOfStrings(item.items || [], `timeline item ${index + 1} list`),
+  }));
+}
+
+function normalizeOverviewCards(cards) {
+  return ensureArrayOfObjects(cards, "overview cards").map((card) => ({
+    title: String(card.title || ""),
+    value: String(card.value || ""),
+    detail: String(card.detail || ""),
+  }));
+}
+
+function normalizeOptions(options) {
+  return {
+    photoPhases: ensureArrayOfStrings(options.photoPhases || [], "photo phases"),
+    projectAreas: ensureArrayOfStrings(options.projectAreas || [], "project areas"),
+    noteCategories: ensureArrayOfStrings(options.noteCategories || [], "note categories"),
+    updateAreas: ensureArrayOfStrings(options.updateAreas || [], "update areas"),
+  };
+}
+
+function normalizeProgressAreas(progressAreas) {
+  if (!progressAreas || typeof progressAreas !== "object" || Array.isArray(progressAreas)) {
+    throw new Error("Progress areas must be a JSON object of label-to-percent values.");
+  }
+
+  return Object.fromEntries(
+    Object.entries(progressAreas).map(([key, value]) => [key, sanitizeProgressValue(value)])
+  );
+}
+
 app.get("/api/dashboard", (req, res) => {
   const db = readDb();
   res.json({
     ...db,
-    options: {
-      photoPhases: PHOTO_PHASES,
-      projectAreas: PROJECT_AREAS,
-      noteCategories: NOTE_CATEGORIES,
-      updateAreas: UPDATE_AREAS,
-    },
     adminAuthenticated: Boolean(req.session.isAdmin),
   });
 });
@@ -560,17 +651,85 @@ app.delete("/api/admin/photos/:id", requireAdmin, (req, res) => {
 
 app.post("/api/admin/progress", requireAdmin, (req, res) => {
   const db = readDb();
+  const currentAreas = Object.keys(db.progress.areas || {});
+  const nextAreas = Object.fromEntries(
+    currentAreas.map((area) => [area, sanitizeProgressValue(req.body[area])])
+  );
+
   db.progress = {
     overall: sanitizeProgressValue(req.body.overall),
-    areas: {
-      "North Deck": sanitizeProgressValue(req.body.northDeck),
-      "South Courtyard": sanitizeProgressValue(req.body.southCourtyard),
-      Lobby: sanitizeProgressValue(req.body.lobby),
-      "Pool Terrace": sanitizeProgressValue(req.body.poolTerrace),
-    },
+    areas: nextAreas,
   };
   writeDb(db);
   res.json({ success: true });
+});
+
+app.post("/api/admin/project-template", requireAdmin, (req, res) => {
+  try {
+    const db = readDb();
+
+    const overviewCards = normalizeOverviewCards(
+      parseJsonField(req.body.overviewCardsJson, "overview cards")
+    );
+    const scopeAreas = normalizeScopeAreas(
+      parseJsonField(req.body.scopeAreasJson, "scope areas")
+    );
+    const summaryCards = normalizeSummaryCards(
+      parseJsonField(req.body.scheduleSummaryJson, "schedule summary")
+    );
+    const timeline = normalizeTimeline(
+      parseJsonField(req.body.timelineJson, "schedule timeline")
+    );
+    const progressAreas = normalizeProgressAreas(
+      parseJsonField(req.body.progressAreasJson, "progress areas")
+    );
+    const options = normalizeOptions({
+      photoPhases: splitLines(req.body.photoPhases),
+      projectAreas: splitLines(req.body.projectAreas),
+      noteCategories: splitLines(req.body.noteCategories),
+      updateAreas: splitLines(req.body.updateAreas),
+    });
+
+    db.project = {
+      name: String(req.body.projectName || ""),
+      headline: String(req.body.headline || ""),
+      location: String(req.body.location || ""),
+      projectCode: String(req.body.projectCode || ""),
+      description: String(req.body.description || ""),
+      owner: {
+        name: String(req.body.ownerName || ""),
+        lines: splitLines(req.body.ownerLines),
+      },
+      architect: {
+        name: String(req.body.architectName || ""),
+        lines: splitLines(req.body.architectLines),
+      },
+      contractor: {
+        name: String(req.body.contractorName || ""),
+        lines: splitLines(req.body.contractorLines),
+      },
+      overviewCards,
+      keyDates: splitLines(req.body.keyDates),
+      staging: splitLines(req.body.staging),
+    };
+
+    db.scopeAreas = scopeAreas;
+    db.schedule = {
+      summaryCards,
+      preconstructionNote: String(req.body.preconstructionNote || ""),
+      timeline,
+    };
+    db.progress = {
+      overall: sanitizeProgressValue(req.body.overall),
+      areas: progressAreas,
+    };
+    db.options = options;
+
+    writeDb(db);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message || "Unable to save template." });
+  }
 });
 
 app.post("/api/admin/notes", requireAdmin, (req, res) => {

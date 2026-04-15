@@ -34,6 +34,7 @@ const elements = {
   updateForm: document.querySelector("#update-form"),
   photoForm: document.querySelector("#photo-form"),
   progressForm: document.querySelector("#progress-form"),
+  templateForm: document.querySelector("#template-form"),
   noteForm: document.querySelector("#note-form"),
   noteResetButton: document.querySelector("#note-reset-button"),
   adminNotesList: document.querySelector("#admin-notes-list"),
@@ -46,6 +47,7 @@ const elements = {
   noteCategorySelect: document.querySelector("#note-category-select"),
   progressRing: document.querySelector("#hero-progress-ring"),
   progressValue: document.querySelector("#hero-progress-value"),
+  progressAreaFields: document.querySelector("#progress-area-fields"),
 };
 
 function formatDate(value) {
@@ -362,15 +364,73 @@ function populateSelect(select, values) {
     .join("");
 }
 
+function prettyJson(value) {
+  return JSON.stringify(value, null, 2);
+}
+
+function renderProgressFormFields(progress) {
+  elements.progressAreaFields.innerHTML = Object.entries(progress.areas)
+    .map(
+      ([area, value]) => `
+        <label>
+          ${escapeHtml(area)} (%)
+          <input type="number" min="0" max="100" name="${escapeHtml(area)}" value="${escapeHtml(
+            String(value)
+          )}" required />
+        </label>
+      `
+    )
+    .join("");
+}
+
 function hydrateAdminForms() {
-  const progress = state.dashboard.progress;
+  const { project, schedule, progress, scopeAreas, options } = state.dashboard;
+  elements.templateForm.elements.projectName.value = project.name || "";
+  elements.templateForm.elements.headline.value = project.headline || "";
+  elements.templateForm.elements.location.value = project.location || "";
+  elements.templateForm.elements.projectCode.value = project.projectCode || "";
+  elements.templateForm.elements.description.value = project.description || "";
+  elements.templateForm.elements.ownerName.value = project.owner.name || "";
+  elements.templateForm.elements.ownerLines.value = (project.owner.lines || []).join("\n");
+  elements.templateForm.elements.architectName.value = project.architect.name || "";
+  elements.templateForm.elements.architectLines.value = (
+    project.architect.lines || []
+  ).join("\n");
+  elements.templateForm.elements.contractorName.value = project.contractor.name || "";
+  elements.templateForm.elements.contractorLines.value = (
+    project.contractor.lines || []
+  ).join("\n");
+  elements.templateForm.elements.overviewCardsJson.value = prettyJson(
+    project.overviewCards || []
+  );
+  elements.templateForm.elements.keyDates.value = (project.keyDates || []).join("\n");
+  elements.templateForm.elements.staging.value = (project.staging || []).join("\n");
+  elements.templateForm.elements.scopeAreasJson.value = prettyJson(scopeAreas || []);
+  elements.templateForm.elements.scheduleSummaryJson.value = prettyJson(
+    schedule.summaryCards || []
+  );
+  elements.templateForm.elements.preconstructionNote.value =
+    schedule.preconstructionNote || "";
+  elements.templateForm.elements.timelineJson.value = prettyJson(
+    schedule.timeline || []
+  );
+  elements.templateForm.elements.photoPhases.value = (options.photoPhases || []).join("\n");
+  elements.templateForm.elements.projectAreas.value = (options.projectAreas || []).join(
+    "\n"
+  );
+  elements.templateForm.elements.updateAreas.value = (options.updateAreas || []).join(
+    "\n"
+  );
+  elements.templateForm.elements.noteCategories.value = (
+    options.noteCategories || []
+  ).join("\n");
+  elements.templateForm.elements.overall.value = progress.overall;
+  elements.templateForm.elements.progressAreasJson.value = prettyJson(
+    progress.areas || {}
+  );
+
   elements.progressForm.elements.overall.value = progress.overall;
-  elements.progressForm.elements.northDeck.value = progress.areas["North Deck"];
-  elements.progressForm.elements.southCourtyard.value =
-    progress.areas["South Courtyard"];
-  elements.progressForm.elements.lobby.value = progress.areas.Lobby;
-  elements.progressForm.elements.poolTerrace.value =
-    progress.areas["Pool Terrace"];
+  renderProgressFormFields(progress);
 }
 
 function resetNoteForm() {
@@ -566,6 +626,19 @@ elements.progressForm.addEventListener("submit", async (event) => {
       elements.progressForm,
       "/api/admin/progress",
       "Progress updated."
+    );
+  } catch (error) {
+    elements.adminMessage.textContent = error.message;
+  }
+});
+
+elements.templateForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  try {
+    await handleFormSubmit(
+      elements.templateForm,
+      "/api/admin/project-template",
+      "Project template updated."
     );
   } catch (error) {
     elements.adminMessage.textContent = error.message;

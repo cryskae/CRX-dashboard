@@ -178,6 +178,112 @@
 
           <div id="admin-workspace" class="admin-workspace hidden">
             <div class="admin-grid">
+              <form id="template-form" class="admin-form template-form">
+                <h3>Project Template Editor</h3>
+                <p class="form-helper">
+                  Update the reusable project setup here. Lists are one item per line.
+                  Cards, scope, schedule, and progress areas use JSON so you can fully
+                  reshape each project.
+                </p>
+                <label>
+                  Project Name
+                  <input type="text" name="projectName" required />
+                </label>
+                <label>
+                  Headline
+                  <input type="text" name="headline" required />
+                </label>
+                <label>
+                  Location
+                  <input type="text" name="location" required />
+                </label>
+                <label>
+                  Project Code
+                  <input type="text" name="projectCode" required />
+                </label>
+                <label>
+                  Description
+                  <textarea name="description" rows="4" required></textarea>
+                </label>
+                <label>
+                  Owner Name
+                  <input type="text" name="ownerName" required />
+                </label>
+                <label>
+                  Owner Lines
+                  <textarea name="ownerLines" rows="3" required></textarea>
+                </label>
+                <label>
+                  Architect Name
+                  <input type="text" name="architectName" required />
+                </label>
+                <label>
+                  Architect Lines
+                  <textarea name="architectLines" rows="3" required></textarea>
+                </label>
+                <label>
+                  Contractor Name
+                  <input type="text" name="contractorName" required />
+                </label>
+                <label>
+                  Contractor Lines
+                  <textarea name="contractorLines" rows="3" required></textarea>
+                </label>
+                <label>
+                  Overview Cards JSON
+                  <textarea name="overviewCardsJson" rows="8" required></textarea>
+                </label>
+                <label>
+                  Key Dates
+                  <textarea name="keyDates" rows="5" required></textarea>
+                </label>
+                <label>
+                  Staging & Access
+                  <textarea name="staging" rows="4" required></textarea>
+                </label>
+                <label>
+                  Scope Areas JSON
+                  <textarea name="scopeAreasJson" rows="12" required></textarea>
+                </label>
+                <label>
+                  Schedule Summary JSON
+                  <textarea name="scheduleSummaryJson" rows="7" required></textarea>
+                </label>
+                <label>
+                  Preconstruction Note
+                  <textarea name="preconstructionNote" rows="3" required></textarea>
+                </label>
+                <label>
+                  Timeline JSON
+                  <textarea name="timelineJson" rows="12" required></textarea>
+                </label>
+                <label>
+                  Photo Phases
+                  <textarea name="photoPhases" rows="3" required></textarea>
+                </label>
+                <label>
+                  Project Areas
+                  <textarea name="projectAreas" rows="5" required></textarea>
+                </label>
+                <label>
+                  Update Areas
+                  <textarea name="updateAreas" rows="5" required></textarea>
+                </label>
+                <label>
+                  Note Categories
+                  <textarea name="noteCategories" rows="4" required></textarea>
+                </label>
+                <label>
+                  Overall Progress (%)
+                  <input type="number" min="0" max="100" name="overall" required />
+                </label>
+                <label>
+                  Progress Areas JSON
+                  <textarea name="progressAreasJson" rows="8" required></textarea>
+                </label>
+                <button type="submit">Save Project Template</button>
+              </form>
+
               <form id="update-form" class="admin-form" enctype="multipart/form-data">
                 <h3>Post Progress Update</h3>
                 <label>
@@ -230,22 +336,7 @@
                   Overall Project (%)
                   <input type="number" min="0" max="100" name="overall" required />
                 </label>
-                <label>
-                  North Deck (%)
-                  <input type="number" min="0" max="100" name="northDeck" required />
-                </label>
-                <label>
-                  South Courtyard (%)
-                  <input type="number" min="0" max="100" name="southCourtyard" required />
-                </label>
-                <label>
-                  Lobby (%)
-                  <input type="number" min="0" max="100" name="lobby" required />
-                </label>
-                <label>
-                  Pool Terrace (%)
-                  <input type="number" min="0" max="100" name="poolTerrace" required />
-                </label>
+                <div id="progress-area-fields"></div>
                 <button type="submit">Save Progress</button>
               </form>
 
