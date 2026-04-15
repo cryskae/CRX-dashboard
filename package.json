@@ -1,0 +1,18 @@
+{
+  "name": "crx-project-dashboard",
+  "version": "2.0.0",
+  "description": "CRX-branded project dashboard with admin tools, uploads, and Railway-ready persistence.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "multer": "^2.0.2"
+  }
+}

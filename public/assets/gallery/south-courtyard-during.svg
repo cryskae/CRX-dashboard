@@ -1,0 +1,12 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="#EFE4D7"/>
+  <rect x="75" y="75" width="1050" height="750" rx="42" fill="#FFF9F2"/>
+  <rect x="75" y="75" width="1050" height="750" rx="42" stroke="#D7C8B7" stroke-width="8"/>
+  <rect x="170" y="180" width="402" height="270" rx="34" fill="#1D5B51"/>
+  <rect x="626" y="180" width="400" height="270" rx="34" fill="#D9B18B"/>
+  <rect x="170" y="490" width="856" height="166" rx="34" fill="#F2E6D8"/>
+  <path d="M235 574H960" stroke="#BD5E2F" stroke-width="18" stroke-linecap="round" stroke-dasharray="14 22"/>
+  <path d="M235 618H850" stroke="#13423D" stroke-width="16" stroke-linecap="round" stroke-dasharray="10 18"/>
+  <text x="170" y="148" fill="#162423" font-family="Arial, sans-serif" font-size="58" font-weight="700">South Courtyard / During</text>
+  <text x="206" y="538" fill="#162423" font-family="Arial, sans-serif" font-size="30">Selective demolition, irrigation coordination, and protections</text>
+</svg>

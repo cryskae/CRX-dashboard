@@ -1,0 +1,15 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="#E9DFD1"/>
+  <rect x="61" y="67" width="1078" height="766" rx="40" fill="#F7F2EA"/>
+  <rect x="61" y="67" width="1078" height="766" rx="40" stroke="#D1C3B2" stroke-width="8"/>
+  <path d="M120 714L468 431L712 549L1020 311V790H120V714Z" fill="#DAB28A"/>
+  <path d="M111 760L425 520L694 617L1083 351" stroke="#13423D" stroke-width="18" stroke-linecap="round"/>
+  <rect x="190" y="216" width="350" height="32" rx="16" fill="#BD5E2F"/>
+  <rect x="190" y="274" width="466" height="24" rx="12" fill="#6C7E7C"/>
+  <rect x="190" y="322" width="282" height="24" rx="12" fill="#6C7E7C"/>
+  <rect x="744" y="189" width="220" height="220" rx="34" fill="#1D5B51"/>
+  <path d="M812 248L896 290L812 332V248Z" fill="#F6E8D9"/>
+  <circle cx="942" cy="665" r="98" fill="#F0D4BC"/>
+  <text x="190" y="165" fill="#162423" font-family="Arial, sans-serif" font-size="58" font-weight="700">North Deck / Before</text>
+  <text x="190" y="396" fill="#162423" font-family="Arial, sans-serif" font-size="30">Paver settlement, railing wear, and drainage tracing</text>
+</svg>
